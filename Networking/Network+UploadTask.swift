@@ -82,7 +82,7 @@ extension Network.UploadTask {
         return self
     }
 }
-
+/*
 extension Network.UploadTask where API: ResponseValidatable {
     /// API 业务逻辑验证
     @discardableResult
@@ -111,23 +111,26 @@ extension Network.UploadTask where API: ResponseValidatable {
         }
     }
 }
-
+*/
 //MARK: CallBack
 extension Network.UploadTask {
     @discardableResult
-    public func responseData(completionHandler: @escaping (AFDataResponse<Data>) -> Void) -> Self {
-        #warning ("todo: Localization AFError")
-        _request.responseData(completionHandler: completionHandler)
+    public func responseData(completionHandler: @escaping (DataResponse<Data, Network.NEError>) -> Void) -> Self {
+        _request.responseData { (response) in
+            completionHandler(response.mapError({ (error) -> Network.NEError in
+                return Network.NEError.network(error)
+            }))
+        }
         return self
     }
 }
 
 extension Network.UploadTask where API: ResponseDecodable {
     @discardableResult
-    public func responseDecodable(Z
-                         completionHandler: @escaping Network.CompletionHandler<API.ResponseDecodableType>) -> Self {
-        #warning ("todo: Localization AFError")
-        _request.responseDecodable(decoder: api.responseDecodableTypeDecoder, completionHandler: { completionHandler($0.result) })
+    public func responseDecodable(completionHandler: @escaping (Result<API.ResponseDecodableType, Network.NEError>) -> Void) -> Self {
+        _request.responseDecodable(decoder: api.responseDecodableTypeDecoder) { (response) in
+            completionHandler(response.mapError{ Network.NEError.network($0) }.result)
+        }
         return self
     }
 }

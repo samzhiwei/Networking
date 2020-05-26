@@ -119,13 +119,17 @@ public protocol ResponseDecodable {
 
 //MARK: Validatable
 public protocol ResponseValidatable {
-    associatedtype ResponseValidationType: ErrorConveritble&Decodable
+    associatedtype ResponseValidationType: BLLErrorConveritble&Decodable
     var responseValidationTypeDecoder: DataDecoder { get }
 }
 
-//MARK: ErrorConveritble
-public protocol ErrorConveritble {
-    func error() -> Error
+public protocol ResponseFailure {
+    associatedtype ResponseFailureType: AFErrorConveritble
+}
+
+//MARK: AFErrorConveritble
+public protocol AFErrorConveritble: Swift.Error {
+    init(af: AFError)
 }
 
 extension Network {

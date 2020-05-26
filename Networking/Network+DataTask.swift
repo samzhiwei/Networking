@@ -44,7 +44,6 @@ extension Network.DataTask: URLRequestConvertible where API.Params: Encodable, A
 
 //MARK: API
 extension Network {
-    public typealias CompletionHandler<Model: Decodable> = (Result<Model, AFError>) -> Void
     @discardableResult
     public func request<API>(_ api: API,
                              params: API.Params? = nil) -> DataTask<API> where API.Params: Encodable, API: ParameterEncodable {
@@ -84,8 +83,9 @@ extension Network.DataTask {
         return self
     }
 }
-
+/*
 extension Network.DataTask where API: ResponseValidatable {
+    
     /// API 业务逻辑验证
     @discardableResult
     public func validateAPIBLL(condition: @escaping ((API.ResponseValidationType) -> Bool)) -> Self {
@@ -114,23 +114,87 @@ extension Network.DataTask where API: ResponseValidatable {
     }
 }
 
+extension Network.DataTask where API: ResponseValidatable {
+    /// API 业务逻辑验证
+    @discardableResult
+    public func validateAPIBLL(condition: @escaping ((API.ResponseValidationType) -> Bool)) -> Self {
+        return validateAPIBLL { (responseValidation) -> Error? in
+            return condition(responseValidation) ? nil : responseValidation.error()
+        }
+    }
+}
+*/
 //MARK: CallBack
+
 extension Network.DataTask {
     @discardableResult
-    public func responseData(completionHandler: @escaping (AFDataResponse<Data>) -> Void) -> Self {
-        #warning ("todo: Localization AFError")
-        _request.responseData(completionHandler: completionHandler)
+    public func responseData(completionHandler: @escaping (DataResponse<Data, Network.NEError>) -> Void) -> Self {
+        _request.responseData { completionHandler($0.mapError{ Network.NEError.network($0) } ) }
         return self
     }
 }
 
 extension Network.DataTask where API: ResponseDecodable {
     @discardableResult
-    public func responseDecodable(
-                         completionHandler: @escaping Network.CompletionHandler<API.ResponseDecodableType>) -> Self {
-        #warning ("todo: Localization AFError")
-        _request.responseDecodable(decoder: api.responseDecodableTypeDecoder, completionHandler: { completionHandler($0.result) })
+    public func responseDecodable(completionHandler: @escaping (Result<API.ResponseDecodableType, Network.NEError>) -> Void) -> Self {
+        _request.responseDecodable(decoder: api.responseDecodableTypeDecoder) { response in
+            completionHandler(response.mapError{ Network.NEError.network($0) }.result)
+        }
         return self
+    }
+}
+
+public typealias NEResponseHandler<Model: Decodable> = Result<Model, Network.NEError>
+
+extension Network.DataTask where API: ResponseDecodable&ResponseValidatable {
+    @discardableResult
+    public func responseDecodableAndValidatable(condition: @escaping ( (API.ResponseValidationType) -> Bool ),
+                                                completionHandler: @escaping (NEResponseHandler<API.ResponseDecodableType>) -> Void) -> Self {
+        let decodableTypeDecoder = self.api.responseDecodableTypeDecoder
+        let validationTypeDecoder = self.api.responseValidationTypeDecoder
+        _request.responseData { (response) in
+            switch response.result {
+            case .success(let data):
+                /// 1 验证
+                guard !data.isEmpty else { /// 空数据
+                    let error = Network.NEError.serialization(.emptyData)
+                    let result = NEResponseHandler<API.ResponseDecodableType>.failure(error)
+                    completionHandler(result)
+                    return
+                }
+                do {
+                    let bll = try validationTypeDecoder.decode(API.ResponseValidationType.self, from: data)
+                    if condition(bll) {
+                        do {
+                            let decodable = try decodableTypeDecoder.decode(API.ResponseDecodableType.self, from: data)
+                            let result = NEResponseHandler<API.ResponseDecodableType>.success(decodable)
+                            completionHandler(result)
+                        } catch {
+                            let error = Network.NEError.serialization(.emptyData)
+                            let result = NEResponseHandler<API.ResponseDecodableType>.failure(error)
+                            completionHandler(result)
+                        }
+                    } else {
+                        let error = Network.NEError.bll(bll)
+                        let result = NEResponseHandler<API.ResponseDecodableType>.failure(error)
+                        completionHandler(result)
+                    }
+                } catch {
+                    let errorDataString = String.init(data: data, encoding: .utf8)
+                    print(errorDataString)
+                    let _error = Network.NEError.serialization(.error(error))
+                    let result = NEResponseHandler<API.ResponseDecodableType>.failure(_error)
+                    completionHandler(result)
+                }
+            case .failure(let afError):
+                let error = Network.NEError.network(afError)
+                let result = NEResponseHandler<API.ResponseDecodableType>.failure(error)
+                completionHandler(result)
+            }
+        }
+        
+        return self
+ 
     }
 }
 

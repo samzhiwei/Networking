@@ -21,8 +21,9 @@ extension Network {
                 let id = "[UUID]: \(request.id)"
                 let url = "[URL]: \(_request.url?.absoluteString ?? "null")"
                 let method = "[Method]: \(_request.method?.rawValue ?? "null")"
+                let header = "[Header]: \(_request.headers)"
                 let params = "[Parameters]: \(_request.httpBody.map { String(decoding: $0, as: UTF8.self) } ?? "null")"
-                print("", start, id, url, method, params, separator: "\n")
+                print("", start, id, url, method, header, params, separator: "\n")
             }
         }
         
