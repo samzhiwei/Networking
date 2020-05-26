@@ -1,5 +1,5 @@
 Pod::Spec.new do |s|
-  s.name             = 'Networking'
+  s.name             = 'CZWNetworking'
   s.version          = '1.1.0'
   s.summary          = 'Generic Network API base on Alamofire'
   s.description      = 'tttttttttttttttttttttttttttttttttttttttt'
