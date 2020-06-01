@@ -1,9 +1,9 @@
 //
 //  AppDelegate.swift
-//  Networking Demo
+//  Example
 //
-//  Created by 岑智炜 on 2020/1/18.
-//  Copyright © 2020 GuangZhou TianQu WangLuo KeJi. All rights reserved.
+//  Created by 岑智炜 on 2020/5/26.
+//  Copyright © 2020 czw. All rights reserved.
 //
 
 import UIKit

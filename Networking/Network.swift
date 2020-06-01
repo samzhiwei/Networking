@@ -15,9 +15,37 @@ import Alamofire
 open class Network: NSObject {
     
     let session: Session
-    init(session: Session) {
+    public init(session: Session) {
         self.session = session
     }
+}
+//MARK: Default
+extension Network {
+    private static let defaultRootQueue = "com.xxx.network.default.rootQueue"
+    public static let `default`: Network = Network.init(session: defaultSession)
+    private(set) static var defaultSession: Alamofire.Session = {
+        let configuration = URLSessionConfiguration.default
+        let headers = HTTPHeaders.default
+        configuration.headers = headers
+        configuration.timeoutIntervalForRequest = 15.0
+        configuration.requestCachePolicy = .useProtocolCachePolicy
+        let eventMonitors: [EventMonitor]
+        #if DEBUG
+        eventMonitors = [Network.LoggingMonitor()]
+        #else
+        eventMonitors = [EventMonitor]()
+        #endif
+        
+        return Alamofire.Session.init(configuration: configuration,
+                                      delegate: SessionDelegate(),
+                                      rootQueue: DispatchQueue(label: defaultRootQueue),
+                                      startRequestsImmediately: true,
+                                      interceptor: ConnectionLostRetryPolicy(),
+                                      serverTrustManager: nil,
+                                      redirectHandler: nil,
+                                      cachedResponseHandler: nil,
+                                      eventMonitors: eventMonitors)
+    }()
 }
 
 extension Network {

@@ -1,28 +1,41 @@
 PODS:
-  - Alamofire (5.0.2)
-  - Cache (5.2.0)
+  - Alamofire (5.0.5)
+  - CZWNetworking (1.1.0):
+    - Alamofire (~> 5.0.2)
+    - ReactiveCocoa (~> 10.2.0)
+  - Kingfisher (5.12.0):
+    - Kingfisher/Core (= 5.12.0)
+  - Kingfisher/Core (5.12.0)
   - ReactiveCocoa (10.2.0):
     - ReactiveSwift (~> 6.2)
-  - ReactiveSwift (6.3.0)
+  - ReactiveSwift (6.2.1)
+  - SnapKit (4.2.0)
 
 DEPENDENCIES:
-  - Alamofire (= 5.0.2)
-  - Cache
-  - ReactiveCocoa (= 10.2.0)
+  - CZWNetworking (from `../`)
+  - Kingfisher (= 5.12.0)
+  - SnapKit (~> 4.2.0)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/CocoaPods/Specs.git:
     - Alamofire
-    - Cache
+    - Kingfisher
     - ReactiveCocoa
     - ReactiveSwift
+    - SnapKit
+
+EXTERNAL SOURCES:
+  CZWNetworking:
+    :path: "../"
 
 SPEC CHECKSUMS:
-  Alamofire: 3ba7a4db18b4f62c4a1c0e1cb39d7f3d52e10ada
-  Cache: 807c5d86d01a177f06ede9865add3aea269bbfd4
+  Alamofire: df2f8f826963b08b9a870791ad48e07a10090b2e
+  CZWNetworking: 8ee5d2ceeda0f5c32c7ae22eac4c7dca7807ff3a
+  Kingfisher: dc6e0f53bb5b12c3e75bedb0e01bbd7a640eea69
   ReactiveCocoa: a123c42f449c552460a4ee217dd49c76a17c8204
-  ReactiveSwift: 7937f26ec18d555e2a99352bd0a8b2817d1f042d
+  ReactiveSwift: 07ddf579f4eb3ee3bd656214f0461aaf2c0fd639
+  SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
 
-PODFILE CHECKSUM: d7b123abf5f50d6524db98a4040ffd1b1b2f1bbb
+PODFILE CHECKSUM: 13874546a866f31bf00560059c094cbc4f696d6b
 
 COCOAPODS: 1.9.1

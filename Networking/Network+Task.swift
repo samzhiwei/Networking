@@ -94,7 +94,7 @@ public protocol APIConvertible {
     var enforceHttpsRequest: Bool { get }
 }
 
-extension APIConvertible {
+public extension APIConvertible {
     var headers: HTTPHeaders { HTTPHeaders() }
     var timeout: Network.TimeoutStrategy { .followSession }
     var httpHeadersFollowSession: Bool { false }
@@ -102,7 +102,7 @@ extension APIConvertible {
 }
 
 //MARK: ParameterEncodableAPI
-protocol ParameterEncodableAPI: APIConvertible, ParameterEncodable {
+public protocol ParameterEncodableAPI: APIConvertible, ParameterEncodable {
     
 }
 
@@ -111,16 +111,37 @@ public protocol ParameterEncodable {
     var parameterEncoder: ParameterEncoder { get }
 }
 
+//MARK: ParameterEncodable Default
+public extension ParameterEncodable {
+    var parameterEncoder: ParameterEncoder {
+        return URLEncodedFormParameterEncoder.default
+    }
+}
+
 //MARK: ResponseDecodable
 public protocol ResponseDecodable {
     associatedtype ResponseDecodableType: Decodable
     var responseDecodableTypeDecoder: DataDecoder { get }
 }
 
+//MARK: ResponseDecodable Default
+public extension ResponseDecodable {
+    var responseDecodableTypeDecoder: DataDecoder {
+        return JSONDecoder()
+    }
+}
+
 //MARK: Validatable
 public protocol ResponseValidatable {
     associatedtype ResponseValidationType: BLLErrorConveritble&Decodable
     var responseValidationTypeDecoder: DataDecoder { get }
+}
+
+//MARK: ValidationDecodable Default
+public extension ResponseValidatable {
+    var responseValidationTypeDecoder: DataDecoder {
+        return JSONDecoder()
+    }
 }
 
 public protocol ResponseFailure {
