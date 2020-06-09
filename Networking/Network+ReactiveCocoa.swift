@@ -68,7 +68,7 @@ extension Network.DataTask where API: ResponseDecodable&ResponseValidatable {
 
 extension Reactive where Base == Network {
     
-    func request<API>(_ api: API,
+    public func request<API>(_ api: API,
                       params: API.Params? = nil) -> Network.DataTask<API>
         where API: APIConvertible, API.Params: Encodable, API: ParameterEncodable, API: ResponseDecodable {
             return base.request(api, params: params)

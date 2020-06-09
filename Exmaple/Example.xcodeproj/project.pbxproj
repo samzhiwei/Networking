@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -18,6 +18,7 @@
 
 /* Begin PBXFileReference section */
 		0ECC31EEB840BF61C5DBD5FA /* Pods_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		225D82FF248F84F70014D7FF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		22FAEC07247D18EF0005217F /* Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Example.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		22FAEC0A247D18EF0005217F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		22FAEC0C247D18EF0005217F /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -45,6 +46,7 @@
 		22FAEBFE247D18EF0005217F = {
 			isa = PBXGroup;
 			children = (
+				225D82FF248F84F70014D7FF /* README.md */,
 				22FAEC09247D18EF0005217F /* Example */,
 				22FAEC08247D18EF0005217F /* Products */,
 				6F0795165315C487814C3E08 /* Pods */,
@@ -80,7 +82,6 @@
 				9A0C25BE09B3F3936A86726E /* Pods-Example.debug.xcconfig */,
 				EFE2A81FA2249F898D8DA9B3 /* Pods-Example.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
