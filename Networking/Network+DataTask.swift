@@ -69,7 +69,7 @@ extension Network.DataTask {
     }
     /// 数据验证
     @discardableResult
-    open func validate(_ validate: @escaping DataRequest.Validation) -> Self {
+    public func validate(_ validate: @escaping DataRequest.Validation) -> Self {
         _request.validate(validate)
         return self
     }
@@ -83,22 +83,25 @@ extension Network.DataTask {
         return self
     }
 }
-/*
+
 extension Network.DataTask where API: ResponseValidatable {
     
-    /// API 业务逻辑验证
+    /// API 业务逻辑验证 包括验证 statusCode: 200..<399
     @discardableResult
-    public func validateAPIBLL(condition: @escaping ((API.ResponseValidationType) -> Bool)) -> Self {
-        return validateAPIBLL { (responseValidation) -> Error? in
-            return condition(responseValidation) ? nil : responseValidation.error()
+    public func validateAPI(condition: @escaping ((API.ResponseValidationType) -> Bool)) -> Self {
+        return validateAPI { (responseValidation) -> Error? in
+            return condition(responseValidation) ? nil : Network.NEError.bll(responseValidation)
         }
     }
-    
-    public func validateAPIBLL(_ condition: @escaping ((API.ResponseValidationType) -> Error?)) -> Self {
+    /// API 业务逻辑验证 包括验证 statusCode: 200..<399
+    @discardableResult
+    public func validateAPI(_ condition: @escaping ((API.ResponseValidationType) -> Error?)) -> Self {
         let _api = self.api
-        return validate { (_, _, data) -> DataRequest.ValidationResult in
+        
+        return validateStatusCodes()
+            .validate { (_, _, data) -> DataRequest.ValidationResult in
             guard let _data = data, !_data.isEmpty else {
-                return .failure(Network.ValidationError.emptyData)
+                return .failure(Network.NEError.serialization(.emptyData))
             }
             do {
                 let bll = try _api.responseValidationTypeDecoder.decode(API.ResponseValidationType.self, from: _data)
@@ -108,22 +111,12 @@ extension Network.DataTask where API: ResponseValidatable {
                     return .success(())
                 }
             } catch {
-                return .failure(Network.ValidationError.decode(error))
+                return .failure(Network.NEError.serialization(.error(error)))
             }
         }
     }
 }
 
-extension Network.DataTask where API: ResponseValidatable {
-    /// API 业务逻辑验证
-    @discardableResult
-    public func validateAPIBLL(condition: @escaping ((API.ResponseValidationType) -> Bool)) -> Self {
-        return validateAPIBLL { (responseValidation) -> Error? in
-            return condition(responseValidation) ? nil : responseValidation.error()
-        }
-    }
-}
-*/
 //MARK: CallBack
 
 extension Network.DataTask {

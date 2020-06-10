@@ -8,12 +8,29 @@
 
 import UIKit
 import CZWNetworking
+import ReactiveSwift
+
+extension Network {
+    static var main: Network { return .default }
+}
 
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         Network.default.request(FetchRouteCategory(), params: .init())
+            .validateAPI(condition: { $0.bllErrorCode == 0 })
+            .responseDecodable { (result) in
+                switch result {
+                case .success(let data):
+                    break
+                case .failure(let error):
+                    break
+                }
+        }
+
+            /*
             .responseData { (response) in
                 switch response.result {
                 case .success(let data):
@@ -28,7 +45,7 @@ class ViewController: UIViewController {
             case .failure(let error):
                 print("失败: \(error)")
             }
-        }
+        }*/
     }
 }
 
