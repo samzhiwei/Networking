@@ -74,8 +74,6 @@ extension Network {
     }
 }
 
-public typealias NEDownloadResponseHandler = (DownloadResponse<Data, Network.NEError>) -> Void
-
 extension Network.DownloadTask {
     @discardableResult
     func downloadProgress(closure: @escaping (Progress) -> Void) -> Self {
@@ -84,12 +82,13 @@ extension Network.DownloadTask {
     }
     
     @discardableResult
-    public func responseData(completionHandler: @escaping NEDownloadResponseHandler) -> Self {
+    public func responseData(completionHandler: @escaping (AFDownloadResponse<Data>) -> Void) -> Self {
         _request.responseData { (response) in
-            completionHandler(response.mapError{ Network.NEError.network($0) })
+            completionHandler(response.mapError{ $0 })
         }
         return self
     }
+ 
 }
 
 //MARK: Token

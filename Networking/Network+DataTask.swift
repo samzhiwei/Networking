@@ -86,32 +86,22 @@ extension Network.DataTask {
 
 extension Network.DataTask where API: ResponseValidatable {
     
-    /// API 业务逻辑验证 包括验证 statusCode: 200..<399
     @discardableResult
-    public func validateAPI(condition: @escaping ((API.ResponseValidationType) -> Bool)) -> Self {
-        return validateAPI { (responseValidation) -> Error? in
-            return condition(responseValidation) ? nil : Network.NEError.bll(responseValidation)
-        }
-    }
-    /// API 业务逻辑验证 包括验证 statusCode: 200..<399
-    @discardableResult
-    public func validateAPI(_ condition: @escaping ((API.ResponseValidationType) -> Error?)) -> Self {
+    public func validateAPI(_ condition: @escaping ((API.ResponseValidationType) -> Bool)) -> Self {
         let _api = self.api
-        
-        return validateStatusCodes()
-            .validate { (_, _, data) -> DataRequest.ValidationResult in
+        return validate { (_, _, data) -> DataRequest.ValidationResult in
             guard let _data = data, !_data.isEmpty else {
-                return .failure(Network.NEError.serialization(.emptyData))
+                return .failure(Network.NEError.validate(.emptyData))
             }
             do {
                 let bll = try _api.responseValidationTypeDecoder.decode(API.ResponseValidationType.self, from: _data)
-                if let error = condition(bll) {
-                    return .failure(error)
-                } else {
+                if condition(bll) {
                     return .success(())
+                } else {
+                    return .failure(Network.NEError.validate(.condition(bll)))
                 }
             } catch {
-                return .failure(Network.NEError.serialization(.error(error)))
+                return .failure(Network.NEError.validate(.decode(error)))
             }
         }
     }
@@ -120,74 +110,31 @@ extension Network.DataTask where API: ResponseValidatable {
 //MARK: CallBack
 
 extension Network.DataTask {
+    
     @discardableResult
-    public func responseData(completionHandler: @escaping (DataResponse<Data, Network.NEError>) -> Void) -> Self {
-        _request.responseData { completionHandler($0.mapError{ Network.NEError.network($0) } ) }
+    public func response(completionHandler: @escaping (Result<Data?, Error>) -> Void) -> Self {
+        _request.response { (response) in
+            completionHandler(response.mapError{ $0 }.result)
+        }
+        return self
+    }
+    
+    @discardableResult
+    public func responseData(completionHandler: @escaping (Result<Data, Error>) -> Void) -> Self {
+        _request.responseData { (response) in
+            completionHandler(response.mapError{ $0 }.result)
+        }
         return self
     }
 }
 
 extension Network.DataTask where API: ResponseDecodable {
     @discardableResult
-    public func responseDecodable(completionHandler: @escaping (Result<API.ResponseDecodableType, Network.NEError>) -> Void) -> Self {
+    public func responseDecodable(completionHandler: @escaping (Result<API.ResponseDecodableType, Error>) -> Void) -> Self {
         _request.responseDecodable(decoder: api.responseDecodableTypeDecoder) { response in
-            completionHandler(response.mapError{ Network.NEError.network($0) }.result)
+            completionHandler(response.mapError{ $0 }.result)
         }
         return self
-    }
-}
-
-public typealias NEResponseHandler<Model: Decodable> = Result<Model, Network.NEError>
-
-extension Network.DataTask where API: ResponseDecodable&ResponseValidatable {
-    @discardableResult
-    public func responseDecodableAndValidatable(condition: @escaping ( (API.ResponseValidationType) -> Bool ),
-                                                completionHandler: @escaping (NEResponseHandler<API.ResponseDecodableType>) -> Void) -> Self {
-        let decodableTypeDecoder = self.api.responseDecodableTypeDecoder
-        let validationTypeDecoder = self.api.responseValidationTypeDecoder
-        _request.responseData { (response) in
-            switch response.result {
-            case .success(let data):
-                /// 1 验证
-                guard !data.isEmpty else { /// 空数据
-                    let error = Network.NEError.serialization(.emptyData)
-                    let result = NEResponseHandler<API.ResponseDecodableType>.failure(error)
-                    completionHandler(result)
-                    return
-                }
-                do {
-                    let bll = try validationTypeDecoder.decode(API.ResponseValidationType.self, from: data)
-                    if condition(bll) {
-                        do {
-                            let decodable = try decodableTypeDecoder.decode(API.ResponseDecodableType.self, from: data)
-                            let result = NEResponseHandler<API.ResponseDecodableType>.success(decodable)
-                            completionHandler(result)
-                        } catch {
-                            let error = Network.NEError.serialization(.emptyData)
-                            let result = NEResponseHandler<API.ResponseDecodableType>.failure(error)
-                            completionHandler(result)
-                        }
-                    } else {
-                        let error = Network.NEError.bll(bll)
-                        let result = NEResponseHandler<API.ResponseDecodableType>.failure(error)
-                        completionHandler(result)
-                    }
-                } catch {
-                    let errorDataString = String.init(data: data, encoding: .utf8)
-                    print(errorDataString)
-                    let _error = Network.NEError.serialization(.error(error))
-                    let result = NEResponseHandler<API.ResponseDecodableType>.failure(_error)
-                    completionHandler(result)
-                }
-            case .failure(let afError):
-                let error = Network.NEError.network(afError)
-                let result = NEResponseHandler<API.ResponseDecodableType>.failure(error)
-                completionHandler(result)
-            }
-        }
-        
-        return self
- 
     }
 }
 

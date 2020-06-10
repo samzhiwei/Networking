@@ -1,6 +1,6 @@
 PODS:
   - Alamofire (5.0.5)
-  - CZWNetworking (1.1.2):
+  - CZWNetworking (1.1.4):
     - Alamofire (= 5.0.5)
     - ReactiveCocoa (= 10.2.0)
   - Kingfisher (5.12.0):
@@ -30,7 +30,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: df2f8f826963b08b9a870791ad48e07a10090b2e
-  CZWNetworking: 200537f554e3dd66c1837e21b353aaa07f48aea5
+  CZWNetworking: 780358f269815abf7495c178b053c57436d13c29
   Kingfisher: dc6e0f53bb5b12c3e75bedb0e01bbd7a640eea69
   ReactiveCocoa: a123c42f449c552460a4ee217dd49c76a17c8204
   ReactiveSwift: 07ddf579f4eb3ee3bd656214f0461aaf2c0fd639

@@ -114,6 +114,7 @@ extension Network.UploadTask where API: ResponseValidatable {
 */
 //MARK: CallBack
 extension Network.UploadTask {
+        /*
     @discardableResult
     public func responseData(completionHandler: @escaping (DataResponse<Data, Network.NEError>) -> Void) -> Self {
         _request.responseData { (response) in
@@ -123,16 +124,19 @@ extension Network.UploadTask {
         }
         return self
     }
+ */
 }
 
 extension Network.UploadTask where API: ResponseDecodable {
+     
     @discardableResult
-    public func responseDecodable(completionHandler: @escaping (Result<API.ResponseDecodableType, Network.NEError>) -> Void) -> Self {
+    public func responseDecodable(completionHandler: @escaping (Result<API.ResponseDecodableType, Error>) -> Void) -> Self {
         _request.responseDecodable(decoder: api.responseDecodableTypeDecoder) { (response) in
-            completionHandler(response.mapError{ Network.NEError.network($0) }.result)
+            completionHandler(response.mapError{ $0 }.result)
         }
         return self
     }
+ 
 }
 
 

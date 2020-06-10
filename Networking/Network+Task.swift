@@ -133,7 +133,7 @@ public extension ResponseDecodable {
 
 //MARK: Validatable
 public protocol ResponseValidatable {
-    associatedtype ResponseValidationType: BLLErrorConveritble&Decodable
+    associatedtype ResponseValidationType: ValidatedErrorConveritble&Decodable
     var responseValidationTypeDecoder: DataDecoder { get }
 }
 
@@ -142,15 +142,6 @@ public extension ResponseValidatable {
     var responseValidationTypeDecoder: DataDecoder {
         return JSONDecoder()
     }
-}
-
-public protocol ResponseFailure {
-    associatedtype ResponseFailureType: AFErrorConveritble
-}
-
-//MARK: AFErrorConveritble
-public protocol AFErrorConveritble: Swift.Error {
-    init(af: AFError)
 }
 
 extension Network {

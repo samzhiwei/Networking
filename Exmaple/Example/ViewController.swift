@@ -9,6 +9,7 @@
 import UIKit
 import CZWNetworking
 import ReactiveSwift
+import Alamofire
 
 extension Network {
     static var main: Network { return .default }
@@ -20,15 +21,23 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         Network.default.request(FetchRouteCategory(), params: .init())
-            .validateAPI(condition: { $0.bllErrorCode == 0 })
-            .responseDecodable { (result) in
+            .validateAPI{ $0.validatedErrorCode == 0 }
+            .responseData(completionHandler: { (result) in
                 switch result {
                 case .success(let data):
                     break
                 case .failure(let error):
                     break
                 }
-        }
+            })
+            .responseDecodable(completionHandler: { (result) in
+                switch result {
+                case .success(let data):
+                    break
+                case .failure(let error):
+                    break
+                }
+            })
 
             /*
             .responseData { (response) in
@@ -78,12 +87,10 @@ extension FetchRouteCategory: ResponseDecodable {
     typealias ResponseDecodableType = NestedHelper<[RouteCategory]>
 }
 
-struct BusCN: BLLErrorConveritble, Decodable {
-    var bllErrorCode: Int {
-        return Int(errorMsg) ?? -9999
-    }
+struct BusCN: ValidatedErrorConveritble, Decodable {
+    var validatedErrorCode: Int { return Int(errorMsg) ?? -9999 }
     
-    var bllErrorMsg: String { errorMsg }
+    var validatedErrorMsg: String { errorMsg }
     
     /// Acceptable Type: String, Int
     let errorMsg: String

@@ -9,27 +9,32 @@
 import Foundation
 import Alamofire
 import ReactiveSwift
-/*
-extension Network {
-    public enum RCError: LocalizedError {
-        case disable
-        case ne(NEError)
-        
-        public var errorDescription: String? {
-            switch self {
-            case .disable: return ""
-            case .ne(let error): return error.errorDescription
-            }
-        }
-    }
-}
-*/
-extension Network.DataTask where API: ResponseDecodable {
+
+extension Network.DataTask {
     @discardableResult
-    public func responseDecodableSignalProducer() -> SignalProducer<API.ResponseDecodableType, Network.NEError> {
+    public func responseSignalProducer() -> SignalProducer<Data?, Error> {
         /// 必须强持有self
         return .init { (observer, lifetime) in
-            let token = self.responseDecodable { (result) in
+            let token = self.response { (result) in
+                switch result {
+                case .success(let data): /// 一次性获取数据后完成
+                    observer.send(value: data)
+                    observer.sendCompleted()
+                case .failure(let error): /// 错误
+                    observer.send(error: error)
+                }
+            }
+            .token()
+            ///跟随signal 取消请求
+            lifetime.observeEnded{ token?.invalidate() }
+        }
+    }
+    
+    @discardableResult
+    public func responseDataSignalProducer() -> SignalProducer<Data, Error> {
+        /// 必须强持有self
+        return .init { (observer, lifetime) in
+            let token = self.responseData { (result) in
                 switch result {
                 case .success(let data): /// 一次性获取数据后完成
                     observer.send(value: data)
@@ -45,12 +50,12 @@ extension Network.DataTask where API: ResponseDecodable {
     }
 }
 
-extension Network.DataTask where API: ResponseDecodable&ResponseValidatable {
+extension Network.DataTask where API: ResponseDecodable {
     @discardableResult
-    public func responseDecodableAndValidatableSignalProducer(condition: @escaping ( (API.ResponseValidationType) -> Bool )) -> SignalProducer<API.ResponseDecodableType, Network.NEError> {
+    public func responseDecodableSignalProducer() -> SignalProducer<API.ResponseDecodableType, Error> {
         /// 必须强持有self
         return .init { (observer, lifetime) in
-            let token = self.responseDecodableAndValidatable(condition: condition) { (result) in
+            let token = self.responseDecodable { (result) in
                 switch result {
                 case .success(let data): /// 一次性获取数据后完成
                     observer.send(value: data)

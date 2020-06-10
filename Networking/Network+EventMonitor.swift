@@ -22,7 +22,7 @@ extension Network {
                 let url = "[URL]: \(_request.url?.absoluteString ?? "null")"
                 let method = "[Method]: \(_request.method?.rawValue ?? "null")"
                 let header = "[Header]: \(_request.headers)"
-                let params = "[Parameters]: \(_request.httpBody.map { String(decoding: $0, as: UTF8.self) } ?? "null")"
+                let params = "[Parameters]: \(_request.httpBody.map { String(decoding: $0, as: UTF8.self).removingPercentEncoding } ?? "null")"
                 print("", start, id, url, method, header, params, separator: "\n")
             }
         }
@@ -54,7 +54,7 @@ extension Network {
         //MARK: Did Fail Task
         func request(_ request: Request, didFailTask task: URLSessionTask, earlyWithError error: AFError) {
             let sRequest = checkRequestType(request)
-            let start = "======= Network Did Finish \(sRequest) ======="
+            let start = "======= Network Did Failed \(sRequest) ======="
             let id = "[UUID]: \(request.id)"
             let error = "[Error]: \(error)"
             print("", start, id, error, separator: "\n")
