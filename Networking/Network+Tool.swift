@@ -9,11 +9,11 @@
 import Foundation
 import Alamofire
 
-struct VoidInput: Encodable { }
-typealias KeyValueInput = Dictionary<String, String>
-struct VoidOuput: Decodable, EmptyResponse {
-    static let value = VoidOuput()
-    static func emptyValue() -> VoidOuput {
+public struct VoidInput: Encodable { }
+public typealias KeyValueInput = Dictionary<String, String>
+public struct VoidOutput: Decodable, EmptyResponse {
+    static let value = VoidOutput()
+    public static func emptyValue() -> VoidOutput {
         return value
     }
 }

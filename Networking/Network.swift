@@ -74,10 +74,10 @@ extension Network {
     /// cancel request when its deinit called
     open class Token {
         let request: Alamofire.Request
-        func invalidate() {
+        public func invalidate() {
             request.task?.cancel()
         }
-        init(_ request: Alamofire.Request) {
+        public init(_ request: Alamofire.Request) {
             self.request = request
         }
         deinit {

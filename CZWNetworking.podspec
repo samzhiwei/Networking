@@ -1,13 +1,13 @@
 Pod::Spec.new do |s|
   s.name             = 'CZWNetworking'
-  s.version          = '1.1.5'
+  s.version          = '1.1.6'
   s.summary          = 'Generic Network API base on Alamofire'
   s.description      = 'tttttttttttttttttttttttttttttttttttttttt'
   s.homepage         = 'https://github.com/samzhiwei/Networking'
   # s.screenshots      = "www.example.com/screenshots_1', "www.example.com/screenshots_2"
   s.license          = 'MIT'
   s.author           = { 'Sam' => 'cenzhiwei219@gmail.com' }
-  s.source           = { :git => 'https://github.com/samzhiwei/Networking.git', :tag => 'v1.1.5' }
+  s.source           = { :git => 'https://github.com/samzhiwei/Networking.git', :tag => 'v1.1.6' }
   # s.social_media_url = 'https://twitter.com/NAME'
 
   s.swift_versions = '5.2'
@@ -22,6 +22,6 @@ Pod::Spec.new do |s|
   # s.osx.exclude_files = 'Classes/ios'
   # s.public_header_files = 'Classes/**/*.h'
   s.frameworks = 'Foundation'
-  s.dependency 'Alamofire', '5.0.5'
+  s.dependency 'Alamofire', '5.2.2'
   s.dependency 'ReactiveCocoa', '10.2.0'
 end

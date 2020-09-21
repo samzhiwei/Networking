@@ -29,6 +29,7 @@ extension Network {
         
         #if NETWORK_DEBUG
         //MARK: Did Validate
+        
         func request(_ request: DataRequest, didValidateRequest urlRequest: URLRequest?, response: HTTPURLResponse, data: Data?, withResult result: Request.ValidationResult) {
             let sRequest = checkRequestType(request)
             let start = "======= Network Did Validate \(sRequest) ======="

@@ -10,7 +10,7 @@ import Foundation
 import Alamofire
 
 extension Network {
-    ///  For a continuous download file task，deinit after initialized DownloadRequest
+    ///  For a continuous upload file task，deinit after initialized UploadRequest
     open class UploadTask<API: APIConvertible>: Task<API> {
         var request: Alamofire.UploadRequest? {
             if _request == nil {
@@ -52,7 +52,7 @@ extension Network {
 //MARK: UploadProgress
 extension Network.UploadTask {
     @discardableResult
-    func uploadProgress(closure: @escaping (Progress) -> Void) -> Self {
+    public func uploadProgress(closure: @escaping (Progress) -> Void) -> Self {
         _request.uploadProgress(closure: closure)
         return self
     }
@@ -82,49 +82,39 @@ extension Network.UploadTask {
         return self
     }
 }
-/*
+
 extension Network.UploadTask where API: ResponseValidatable {
-    /// API 业务逻辑验证
     @discardableResult
-    public func validateAPIBLL(condition: @escaping ((API.ResponseValidationType) -> Bool)) -> Self {
-        return validateAPIBLL { (responseValidation) -> Error? in
-            return condition(responseValidation) ? nil : responseValidation.error()
-        }
-    }
-    
-    public func validateAPIBLL(_ condition: @escaping ((API.ResponseValidationType) -> Error?)) -> Self {
+    public func validateAPI(_ condition: @escaping ((API.ResponseValidationType) -> Bool)) -> Self {
         let _api = self.api
         return validate { (_, _, data) -> DataRequest.ValidationResult in
             guard let _data = data, !_data.isEmpty else {
-                return .failure(Network.ValidationError.emptyData)
+                return .failure(Network.NEError.validate(.emptyData))
             }
             do {
                 let bll = try _api.responseValidationTypeDecoder.decode(API.ResponseValidationType.self, from: _data)
-                if let error = condition(bll) {
-                    return .failure(error)
-                } else {
+                if condition(bll) {
                     return .success(())
+                } else {
+                    return .failure(Network.NEError.validate(.condition(bll)))
                 }
             } catch {
-                return .failure(Network.ValidationError.decode(error))
+                return .failure(Network.NEError.validate(.decode(error)))
             }
         }
     }
 }
-*/
 //MARK: CallBack
 extension Network.UploadTask {
-        /*
+        
     @discardableResult
-    public func responseData(completionHandler: @escaping (DataResponse<Data, Network.NEError>) -> Void) -> Self {
+    public func responseData(completionHandler: @escaping (Result<Data, Error>) -> Void) -> Self {
         _request.responseData { (response) in
-            completionHandler(response.mapError({ (error) -> Network.NEError in
-                return Network.NEError.network(error)
-            }))
+            completionHandler(response.mapError{ $0 }.result)
         }
         return self
     }
- */
+ 
 }
 
 extension Network.UploadTask where API: ResponseDecodable {
@@ -137,6 +127,14 @@ extension Network.UploadTask where API: ResponseDecodable {
         return self
     }
  
+}
+
+//MARK: Token
+extension Network.UploadTask {
+    public func token() -> Network.Token? {
+        guard let cRequest = request else { return nil }
+        return Network.Token(cRequest)
+    }
 }
 
 
